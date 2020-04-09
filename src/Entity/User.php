@@ -40,6 +40,11 @@ class User implements UserInterface
      */
     private $mobile;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $nombre;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -126,6 +131,18 @@ class User implements UserInterface
     public function setMobile(string $mobile): self
     {
         $this->mobile = $mobile;
+
+        return $this;
+    }
+
+    public function getNombre(): ?string
+    {
+        return $this->nombre;
+    }
+
+    public function setNombre(string $nombre): self
+    {
+        $this->nombre = $nombre;
 
         return $this;
     }

@@ -13,23 +13,14 @@
 	</head>
 	<body>
 		<nav class="navbar navbar-expand-lg navbar-light bg-light">
-			<a class="navbar-brand" href="{{path('index')}}">TIENDA</a>
+			<a class="navbar-brand" href="{{path('app_login')}}">Iniciar session</a>
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-				<div class="navbar-nav mr-auto">
-					<ul class="navbar-nav mr-auto">
-						<li class="nav-item active">
-							{% if app.request.uri == url('productos') %}
-								<a class="nav-item nav-link active" href="{{path('productos')}}">Productos</a>
-							{% else %}
-								<a class="nav-item nav-link" href="{{path('productos')}}">Productos</a>
-							{% endif %}
-						</li>
-					</ul>
+				<div class="navbar-nav">
+					<a class="nav-item nav-link" href="{{path('app_register')}}">Registrarse</a>
 				</div>
-				<a class="nav-link float-right" href="{{ path('app_logout') }}">Cerrar sesion</a>
 			</div>
 		</nav>
 		{% block body %}{% endblock %}

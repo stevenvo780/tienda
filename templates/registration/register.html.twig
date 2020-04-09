@@ -1,15 +1,24 @@
-{% extends 'base.html.twig' %}
+{% extends 'baseIndex.html.twig' %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Register
+{% endblock %}
 
 {% block body %}
-    <h1>Register</h1>
+	<div class="container">
+		<div class="row">
+			<div class="col-xl-9 mx-auto">
+				<h1>Register</h1>
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+				{{ form_start(registrationForm) }}
+				{{ form_row(registrationForm.email) }}
+                {{ form_row(registrationForm.nombre) }}
+                {{ form_row(registrationForm.mobile) }}
+				{{ form_row(registrationForm.plainPassword) }}
 
-        <button class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+                <br>
+				<button class="btn btn-lg btn-primary">Register</button>
+				{{ form_end(registrationForm) }}
+			</div>
+		</div>
+	</div>
 {% endblock %}
