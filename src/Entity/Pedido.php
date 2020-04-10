@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Pedido
 {
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -21,17 +22,17 @@ class Pedido
     /**
      * @ORM\Column(type="string", length=80)
      */
-    private $customer_name;
+    private $customerName;
 
     /**
      * @ORM\Column(type="string", length=120)
      */
-    private $customer_email;
+    private $customerEmail;
 
     /**
      * @ORM\Column(type="string", length=40)
      */
-    private $customer_mobile;
+    private $customerMobile;
 
     /**
      * @ORM\Column(type="string", length=20)
@@ -41,17 +42,28 @@ class Pedido
     /**
      * @ORM\Column(type="datetime")
      */
-    private $created_at;
+    private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private $updated_at;
+    private $updatedAt;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Producto", mappedBy="pedido")
      */
     private $productos;
+
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $requestId;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $url;
 
     public function __construct()
     {
@@ -65,36 +77,36 @@ class Pedido
 
     public function getCustomerName(): ?string
     {
-        return $this->customer_name;
+        return $this->customerName;
     }
 
-    public function setCustomerName(string $customer_name): self
+    public function setCustomerName(string $customerName): self
     {
-        $this->customer_name = $customer_name;
+        $this->customerName = $customerName;
 
         return $this;
     }
 
     public function getCustomerEmail(): ?string
     {
-        return $this->customer_email;
+        return $this->customerEmail;
     }
 
-    public function setCustomerEmail(string $customer_email): self
+    public function setCustomerEmail(string $customerEmail): self
     {
-        $this->customer_email = $customer_email;
+        $this->customerEmail = $customerEmail;
 
         return $this;
     }
 
     public function getCustomerMobile(): ?string
     {
-        return $this->customer_mobile;
+        return $this->customerMobile;
     }
 
-    public function setCustomerMobile(string $customer_mobile): self
+    public function setCustomerMobile(string $customerMobile): self
     {
-        $this->customer_mobile = $customer_mobile;
+        $this->customerMobile = $customerMobile;
 
         return $this;
     }
@@ -113,24 +125,36 @@ class Pedido
 
     public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->created_at;
+        return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $created_at): self
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
-        $this->created_at = $created_at;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
     public function getUpdatedAt(): ?\DateTimeInterface
     {
-        return $this->updated_at;
+        return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeInterface $updated_at): self
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
     {
-        $this->updated_at = $updated_at;
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getRequestId(): ?int
+    {
+        return $this->requestId;
+    }
+
+    public function setRequestId(int $requestId): self
+    {
+        $this->requestId = $requestId;
 
         return $this;
     }
@@ -165,4 +189,17 @@ class Pedido
 
         return $this;
     }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): self
+    {
+        $this->url = $url;
+
+        return $this;
+    }
+ 
 }

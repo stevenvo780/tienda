@@ -144,4 +144,16 @@ class Producto
 
         return $this;
     }
+
+    public function getPedido(): ?Pedido
+    {
+        return $this->pedido;
+    }
+
+    public function setPedido(?Pedido $pedido): self
+    {
+        $this->pedido = $pedido;
+
+        return $this;
+    }
 }

@@ -26,6 +26,14 @@
 							{% else %}
 								<a class="nav-item nav-link" href="{{path('productos')}}">Productos</a>
 							{% endif %}
+							
+						</li>
+						<li>
+						{% if app.request.uri == url('orders') %}
+							<a class="nav-item nav-link active" href="{{path('orders')}}">Pedidos</a>
+						{% else %}
+							<a class="nav-item nav-link" href="{{path('orders')}}">Pedidos</a>
+						{% endif %}
 						</li>
 					</ul>
 				</div>

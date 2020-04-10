@@ -10,3 +10,8 @@ pasarela:
     path: /pasarela
     methods: POST
     controller: App\Controller\HomeController::pasarela
+
+orders:
+    path: /orders
+    methods: GET
+    controller: App\Controller\HomeController::orders
