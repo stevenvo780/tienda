@@ -13,15 +13,18 @@ function pasarela() {
         data: data,
         method: 'post',
         success: function (response) {
-            //var data = JSON.parse(response);
             console.log(response);
-            var win = window.open(response, '_blank');
-            // Cambiar el foco al nuevo tab (punto opcional)
-            win.focus();
+            var texto = "" + response;
+            
+            if (texto.substring(0, 5) == "https") {
+                var win = window.open(response, '_blank');
+                win.focus();
+            }
+
 
         },
         error: function (error) {
-            alert("error en pasarela");
+            console.log(error);
         }
     });
 }

@@ -6,7 +6,7 @@
 {% block body %}
 
 	<div class="container">
-	<br>
+		<br>
 		<div class="row">
 			{% for producto in productos %}
 				<div class="col-md-3 col-center">
@@ -26,12 +26,12 @@
 					</div>
 					<br>
 				</div>
-				
+
 			{% endfor %}
 		</div>
 	</div>
 
-	<div class="modal fade" tabindex="-1" role="dialog" id="pasarela" >
+	<div class="modal fade" tabindex="-1" role="dialog" id="pasarela">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -55,6 +55,6 @@
 {% block javascripts %}
 	{{ parent() }}
 	<script src="/js/pasarela.js"></script>
-	
+
 
 {% endblock %}

@@ -2,17 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Pedido;
 use App\Entity\Producto;
+use DateTime;
 use Dnetix\Redirection\PlacetoPay;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 
 class HomeController extends AbstractController
 {
@@ -35,7 +32,7 @@ class HomeController extends AbstractController
     public function pasarela(EntityManagerInterface $em, Request $request)
     {
         $json = $request->request->all();
-        
+
         $placetopay = new PlacetoPay([
             'login' => $json['login'],
             'tranKey' => $json['tranKey'],
@@ -45,7 +42,7 @@ class HomeController extends AbstractController
                 'connect_timeout' => 10,
             ],
         ]);
-        
+
         $reference = 'TEST_' . time();
         $request = [
             'payment' => [
@@ -63,30 +60,48 @@ class HomeController extends AbstractController
         ];
 
         try {
-            
-            $response = $placetopay->request($request);
-            
-            if ($response->isSuccessful()) {
-                
-                $response->processUrl();
-                
-                $url = "" . $response->processUrl();
-                dump($url);
-                
-                return new Response($url);
-            } else {
-                
-                return new Response($response->status()->message());
-                
-                
-            }
-            dump($response);
-        } catch (Exception $e) {
-            dump($e->getMessage());
-        }
-        
 
-        
+            $response = $placetopay->request($request);
+            $userLogueado = $this->getUser();
+            $pedido = new Pedido();
+            $hoy = date("Y-m-d H:i:s");
+            $hoy = new DateTime($hoy);
+
+            $pedido->setCustomerName($userLogueado->getNombre());
+            $pedido->setCustomerEmail($userLogueado->getEmail());
+            $pedido->setCustomerMobile($userLogueado->getMobile());
+            //poner los 3 tipos indicados en el examen
+            if ($response->status()->status() == "OK") {
+                $pedido->setStatus("CREATED");
+            } elseif ($response->status()->status() == "FAILED") {
+                $pedido->setStatus("FAILED");
+            }
+
+            $pedido->setCreatedAt($hoy);
+            $pedido->setUpdatedAt($hoy);
+
+            try {
+                $em->persist($pedido);
+                $em->flush();
+            } catch (\Throwable $th) {
+                return new Response($th);
+            }
+
+            if ($response->isSuccessful()) {
+
+                $url = "" . $response->processUrl();
+
+                return new Response($url);
+
+            } else {
+
+                return new Response($response->status()->message());
+            }
+
+        } catch (Exception $e) {
+            return new Response($e->getMessage());
+        }
+
         return new Response(0);
     }
 }
