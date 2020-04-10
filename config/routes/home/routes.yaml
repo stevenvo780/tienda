@@ -5,3 +5,8 @@ index:
 productos:
     path: /productos
     controller: App\Controller\HomeController::productos
+
+pasarela:
+    path: /pasarela
+    methods: POST
+    controller: App\Controller\HomeController::pasarela
