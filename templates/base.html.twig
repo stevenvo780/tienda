@@ -30,9 +30,9 @@
 						</li>
 						<li>
 						{% if app.request.uri == url('orders') %}
-							<a class="nav-item nav-link active" href="{{path('orders')}}">Pedidos</a>
+							<a class="nav-item nav-link active" href="{{path('pedidos_index')}}">Pedidos</a>
 						{% else %}
-							<a class="nav-item nav-link" href="{{path('orders')}}">Pedidos</a>
+							<a class="nav-item nav-link" href="{{path('pedidos_index')}}">Pedidos</a>
 						{% endif %}
 						</li>
 					</ul>

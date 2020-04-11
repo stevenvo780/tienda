@@ -51,11 +51,6 @@ class Producto
      */
     private $description;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Pedido", inversedBy="productos")
-     */
-    private $pedido;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -141,18 +136,6 @@ class Producto
     public function setDescription(string $description): self
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getPedido(): ?Pedido
-    {
-        return $this->pedido;
-    }
-
-    public function setPedido(?Pedido $pedido): self
-    {
-        $this->pedido = $pedido;
 
         return $this;
     }

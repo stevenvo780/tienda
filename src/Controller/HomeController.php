@@ -10,6 +10,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 class HomeController extends AbstractController
 {
@@ -29,10 +33,17 @@ class HomeController extends AbstractController
         ]);
     }
 
+    public function pedidos()
+    {
+        return $this->render('home/orders.html.twig');
+    }
+
     public function pasarela(EntityManagerInterface $em, Request $request)
     {
+        $pedido = new Pedido();
+        $data = [];
         $json = $request->request->all();
-
+        $userLogueado = $this->getUser();
         $placetopay = new PlacetoPay([
             'login' => '6dd490faf9cb87a9862245da41170ff2',
             'tranKey' => '024h1IlD',
@@ -43,39 +54,70 @@ class HomeController extends AbstractController
             ],
         ]);
 
-        $reference = 'TEST_' . time();
+        $reference = 'REF_' . time();
+
+        $items = [];
+        $itemsId = [];
+        $precioFinal = 0;
+        foreach ($json['idProducto'] as $idProducto) {
+            $producto = $em->getRepository(Producto::class)->find($idProducto);
+            array_push($items, [
+                "sku" => $producto->getSku(),
+                "name" => $producto->getName(),
+                "category" => $producto->getCategory(),
+                "qty" => $producto->getQty(),
+                "price" => $producto->getPrice(),
+                "tax" => $producto->getTax(),
+            ]);
+            array_push($itemsId, $producto->getId());
+            $precioFinal += $producto->getPrice();
+        }
+
+        $pedido->setProductos($itemsId);
+
         $request = [
             'payment' => [
                 'reference' => $reference,
+                "name" => $userLogueado->getNombre(),
+                "surname" => "Yost",
+                "email" => $userLogueado->getEmail(),
                 'description' => 'Testing payment',
+                "mobile" => $userLogueado->getMobile(),
                 'amount' => [
-                    'currency' => 'USD',
-                    'total' => 120,
+                    'currency' => 'COP',
+                    'total' => $precioFinal,
                 ],
             ],
+            "buyer" => [
+                "name" => $userLogueado->getNombre(),
+                "email" => $userLogueado->getEmail(),
+                "mobile" => $userLogueado->getMobile(),
+            ],
+            "items" => $items,
             'expiration' => date('c', strtotime('+1 days')),
-            'returnUrl' => 'http://localhost:8000/profile/productos',
+            'returnUrl' => 'http://localhost:8000/profile/pedidos',
             'ipAddress' => '127.0.0.1',
             'userAgent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
         ];
+        
 
+        $error = "";
+        $url = "";
         try {
 
             $response = $placetopay->request($request);
-            dump($response);
-            $userLogueado = $this->getUser();
-            $pedido = new Pedido();
+
             $hoy = date("Y-m-d H:i:s");
             $hoy = new DateTime($hoy);
 
             $pedido->setCustomerName($userLogueado->getNombre());
             $pedido->setCustomerEmail($userLogueado->getEmail());
             $pedido->setCustomerMobile($userLogueado->getMobile());
-            $pedido->setCustomerMobile($userLogueado->getMobile());
             $pedido->setrequestId($response->requestId());
             $pedido->setUrl($response->requestId());
 
-            //poner los 3 tipos indicados en el examen
+            //añadir productos
+
             if ($response->status()->status() == "OK") {
                 $pedido->setStatus("CREATED");
             } elseif ($response->status()->status() == "FAILED") {
@@ -84,37 +126,43 @@ class HomeController extends AbstractController
 
             $pedido->setCreatedAt($hoy);
             $pedido->setUpdatedAt($hoy);
-
             if ($response->isSuccessful()) {
 
                 $url = "" . $response->processUrl();
                 $pedido->setUrl($url);
 
-                try {
-                    $em->persist($pedido);
-                    $em->flush();
-                } catch (\Throwable $th) {
-                    dump($th);
-                }
-                return new Response($url);
-
             } else {
-                try {
-                    $em->persist($pedido);
-                    $em->flush();
-                } catch (\Throwable $th) {
-                    dump($th);
-                }
-                return new Response($response->status()->message());
+                $error = $response->status()->message();
             }
 
         } catch (Exception $e) {
-            //return new Response($e->getMessage());
-            dump($e->getMessage());
+            $error = $e->getMessage();
         }
+
+        try {
+            $em->persist($pedido);
+            $em->flush();
+
+        } catch (\Throwable $th) {
+            $error = "ERROR AL GUARDAR EL PEDIDO";
+        }
+
+        array_push($data, [
+            'url' => $url,
+            'error' => $error,
+            'pedido' => $pedido,
+            'items' => $items
+        ]);
+
+        $encoders = [new XmlEncoder(), new JsonEncoder()];
+        $normalizers = [new ObjectNormalizer()];
+        $serializer = new Serializer($normalizers, $encoders);
+
+        return new Response($serializer->serialize($data, 'json'));
 
         return new Response(0);
     }
+
 
     public function orders(EntityManagerInterface $em)
     {
@@ -125,8 +173,8 @@ class HomeController extends AbstractController
             'tranKey' => '024h1IlD',
             'url' => 'https://test.placetopay.com/redirection/',
             'rest' => [
-                'timeout' => 10,
-                'connect_timeout' => 10,
+                'timeout' => 40,
+                'connect_timeout' => 40,
             ],
         ]);
         $orders = [];
@@ -149,7 +197,14 @@ class HomeController extends AbstractController
                     try {
                         $em->persist($pedido);
                         $em->flush();
-                        array_push($orders, $pedido);
+                        $productos = $pedido->getProductos();
+                        $items = [];
+                        foreach ($productos as $key => $productoId) {
+                            $producto = $em->getRepository(Producto::class)->find($productoId);
+                            array_push($items, $producto);
+                            
+                        }
+                        array_push($orders, ['pedido' => $pedido, 'items' => $items]);
                     } catch (\Throwable $th) {
                         dump($th);
                     }
@@ -160,12 +215,13 @@ class HomeController extends AbstractController
             } catch (Exception $e) {
                 dump($e->getMessage());
             }
-
         }
-        dump($orders);
-        return $this->render('home/orders.html.twig', [
-            'orders' => $orders,
-        ]);
+        
+        $encoders = [new XmlEncoder(), new JsonEncoder()];
+        $normalizers = [new ObjectNormalizer()];
+        $serializer = new Serializer($normalizers, $encoders);
+
+        return new Response($serializer->serialize($orders, 'json'));
     }
 
 }

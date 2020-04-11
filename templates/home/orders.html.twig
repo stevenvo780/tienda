@@ -7,56 +7,14 @@
 
 	<div class="container">
 		<br>
-		<div class="row">
-			{% for pedido in orders %}
-				<div class="col-md-3 col-center">
-					<div
-						class="card">
-						{# <img class="card-img-top" src="..." alt="Card image cap"> #}
-						<div class="card-body">
-							<h5 class="card-title">{{ pedido.status }}</h5>
-							<p class="card-text">{{ pedido.customerEmail }}</p>
-							
-						</div>
-
-						<div class="card-body">
-							{% if pedido.status == "CREATED" %}
-								<a href='{{ pedido.url }}'  role="button" class="btn btn-success">Volver a la compra</a>
-							{% endif %}
-							
-						</div>
-					</div>
-					<br>
-				</div>
-
-			{% endfor %}
+		<div class="row" id="orders">
+			<img src="/images/load.gif" alt="load" style="margin-left: auto; margin-right: auto;">
 		</div>
 	</div>
 
-	<div class="modal fade" tabindex="-1" role="dialog" id="pasarela">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">Modal title</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<p>Modal body text goes here.</p>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-primary">Save changes</button>
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-				</div>
-			</div>
-		</div>
-	</div>
 {% endblock %}
 
 {% block javascripts %}
 	{{ parent() }}
-	<script src="/js/pasarela.js"></script>
-
-
+	<script src="/js/orders.js"></script>
 {% endblock %}
