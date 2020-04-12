@@ -26,8 +26,8 @@ function pasarela(idProducto) {
                                     <p>MOVIL: ${data.user.mobile}</p>
                                 </div>`;
 
-            let boton = `<a href='javascript:;' onclick="pagar(${data.producto.id});" role="button" class="btn btn-success">Confirmar</a>`;
-            $(boton).appendTo('#botonDiv');
+            let boton = `<a href='javascript:;' onclick="pagar(${data.producto.id});" role="button" class="btn btn-success">Confirmar</a> <button type='button' class='btn btn-secondary' data-dismiss='modal'>Close</button>`;
+            document.getElementById('botonDiv').innerHTML = boton;
             document.getElementById('ordenDiv').innerHTML = ordenCuerpo;
             $('#pasarela').modal('show');
 
