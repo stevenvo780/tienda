@@ -1,4 +1,4 @@
-# PLACETOPLAY
+# PLACETOPAY
 Prueba para placetopay
 
 Credenciales de administrador 
