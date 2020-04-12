@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Producto index
+{% endblock %}
+
+{% block body %}
+
+
+	<div class="container">
+		<div class="row">
+			<div class="col-xl-12 mx-auto">
+				<h1>Producto index</h1>
+
+				<table class="table" id="productos">
+					<thead>
+						<tr>
+							<th>Id</th>
+							<th>Sku</th>
+							<th>Name</th>
+							<th>Category</th>
+							<th>Qty</th>
+							<th>Price</th>
+							<th>Tax</th>
+							<th>Description</th>
+							<th>actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for producto in productos %}
+							<tr>
+								<td>{{ producto.id }}</td>
+								<td>{{ producto.sku }}</td>
+								<td>{{ producto.name }}</td>
+								<td>{{ producto.category }}</td>
+								<td>{{ producto.qty }}</td>
+								<td>{{ producto.price }}</td>
+								<td>{{ producto.tax }}</td>
+								<td>{{ producto.description }}</td>
+								<td>
+									<a class="btn btn-lg btn-info" href="{{ url('producto_show', {'id': producto.id}) }}">VER</a>
+									<a class="btn btn-lg btn-warning" href="{{ url('producto_edit', {'id': producto.id}) }}">EDITAR</a>
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="9">No se encontraron productos</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+
+				<a class="btn btn-lg btn-success" href="{{ path('producto_new') }}">Crear nuevo</a>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block javascripts %}
+	{{ parent() }}
+	<script>
+		$(document).ready(function () {
+$('#productos').DataTable();
+});
+	</script>
+{% endblock %}

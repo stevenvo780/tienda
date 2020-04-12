@@ -2,6 +2,12 @@ profile:
   resource: "routes/home/routes.yaml"
   prefix: /profile
 
+admin:
+  resource: "routes/admin/routes.yaml"
+  prefix: /admin
+
 app_login:
   path: /
   controller: App\Controller\SecurityController::login
+
+  

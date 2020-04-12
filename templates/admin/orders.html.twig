@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Productos
+{% endblock %}
+
+{% block body %}
+
+		<div class="container">
+		<div class="row">
+			<div class="col-xl-12 mx-auto">
+				<h1>Ordenes</h1>
+
+				<table class="table" id="productos">
+					<thead>
+						<tr>
+							<th>Categoria</th>
+							<th>Nombre</th>
+							<th>Precio</th>
+							<th>SKU</th>
+							<th>Nombre usuario</th>
+							<th>Email usuario</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+					</tbody>
+				</table>
+
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script src="/js/ordersAdmin.js"></script>
+{% endblock %}

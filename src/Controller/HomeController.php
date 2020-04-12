@@ -19,9 +19,18 @@ class HomeController extends AbstractController
 {
     public function index()
     {
-        return $this->render('home/index.html.twig', [
-            'controller_name' => 'HomeController',
-        ]);
+        if ($this->getUser()) {
+            $rol = $this->getUser()->getRoles();
+            if ($rol[0] == "ROLE_ADMIN") {
+                return $this->redirectToRoute('producto_index');
+            } elseif ($rol[0] == "ROLE_USER") {
+                return $this->render('home/index.html.twig', [
+                    'controller_name' => 'HomeController',
+                ]);
+            }
+        }
+
+        return $this->redirectToRoute('app_logout');
     }
 
     public function productos(EntityManagerInterface $em)
@@ -36,6 +45,11 @@ class HomeController extends AbstractController
     public function pedidos()
     {
         return $this->render('home/orders.html.twig');
+    }
+
+    public function pedidosAdmin()
+    {
+        return $this->render('admin/orders.html.twig');
     }
 
     public function pasarela(EntityManagerInterface $em, Request $request)
@@ -99,7 +113,6 @@ class HomeController extends AbstractController
             'ipAddress' => '127.0.0.1',
             'userAgent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
         ];
-        
 
         $error = "";
         $url = "";
@@ -151,7 +164,7 @@ class HomeController extends AbstractController
             'url' => $url,
             'error' => $error,
             'pedido' => $pedido,
-            'items' => $items
+            'items' => $items,
         ]);
 
         $encoders = [new XmlEncoder(), new JsonEncoder()];
@@ -163,11 +176,34 @@ class HomeController extends AbstractController
         return new Response(0);
     }
 
-
     public function orders(EntityManagerInterface $em)
     {
-        $userLogueado = $this->getUser();
-        $pedidos = $em->getRepository(Pedido::class)->findBy(['customerEmail' => $userLogueado->getEmail()]);
+        $orders;
+
+        if ($this->getUser()) {
+            $rol = $this->getUser()->getRoles();
+            if ($rol[0] == "ROLE_ADMIN") {
+                $userLogueado = $this->getUser();
+                $pedidos = $em->getRepository(Pedido::class)->findAll();
+                $orders = $this->statusOrders($pedidos);
+                dump($this->getUser());
+            } elseif ($rol[0] == "ROLE_USER") {
+                $userLogueado = $this->getUser();
+                $pedidos = $em->getRepository(Pedido::class)->findBy(['customerEmail' => $userLogueado->getEmail()]);
+                $orders = $this->statusOrders($pedidos);
+            }
+        }
+
+        $encoders = [new XmlEncoder(), new JsonEncoder()];
+        $normalizers = [new ObjectNormalizer()];
+        $serializer = new Serializer($normalizers, $encoders);
+
+        return new Response($serializer->serialize($orders, 'json'));
+    }
+
+    private function statusOrders($pedidos)
+    {
+        $em = $this->getDoctrine()->getManager();
         $placetopay = new PlacetoPay([
             'login' => '6dd490faf9cb87a9862245da41170ff2',
             'tranKey' => '024h1IlD',
@@ -181,7 +217,7 @@ class HomeController extends AbstractController
         foreach ($pedidos as $key => $pedido) {
             try {
                 $response = $placetopay->query($pedido->getRequestId());
-                dump($response);
+
                 if ($response->isSuccessful()) {
 
                     if ($response->status()->isApproved()) {
@@ -202,7 +238,7 @@ class HomeController extends AbstractController
                         foreach ($productos as $key => $productoId) {
                             $producto = $em->getRepository(Producto::class)->find($productoId);
                             array_push($items, $producto);
-                            
+
                         }
                         array_push($orders, ['pedido' => $pedido, 'items' => $items]);
                     } catch (\Throwable $th) {
@@ -216,12 +252,7 @@ class HomeController extends AbstractController
                 dump($e->getMessage());
             }
         }
-        
-        $encoders = [new XmlEncoder(), new JsonEncoder()];
-        $normalizers = [new ObjectNormalizer()];
-        $serializer = new Serializer($normalizers, $encoders);
-
-        return new Response($serializer->serialize($orders, 'json'));
+        return $orders;
     }
 
 }

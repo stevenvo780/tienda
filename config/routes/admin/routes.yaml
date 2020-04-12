@@ -1,0 +1,7 @@
+producto:
+  resource: "producto/routes.yaml"
+  prefix: /producto
+
+pedidos_admin:
+  path: /orders
+  controller: App\Controller\HomeController::pedidosAdmin
