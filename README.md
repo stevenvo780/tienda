@@ -3,17 +3,13 @@ Prueba para placetopay
 
 Credenciales de administrador 
 
-email: 
+email: tienda@tienda.com
+password: admin85204561583#
 
-pasos:
+despliegue:
 
-$ php bin/console chat:start
+ $ bin/deploy.sh
 
-$ bg jobID
+El despliegue requiere de las configuraciones de APACHE recomendadas para symfony
 
-$ disown PIT
-
-
-Despliegue:
-
-bin/deploy.sh
+https://symfony.com/doc/current/setup/web_server_configuration.html
