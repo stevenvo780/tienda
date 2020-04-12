@@ -27,3 +27,6 @@ mensaje de que está pagada, de lo contrario, un botón que permita reintentarlo
 debe estar presente" -> En la vista de pedidos del usuario se pueden ver todas sus ordenes y su estado ruta: /profile/pedidos
 
 - 4° "Una donde se pueda ver el listado de todas las órdenes que tiene la tienda"-> En la vista de pedidos de administrador se pueden ver todas las ordenes ruta: /admin/orders
+
+
+Para le prueba de todo se debe crear un producto almenos para la prueba

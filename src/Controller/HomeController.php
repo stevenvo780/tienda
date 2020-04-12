@@ -131,8 +131,6 @@ class HomeController extends AbstractController
             $pedido->setrequestId($response->requestId());
             $pedido->setUrl($response->requestId());
 
-            //añadir productos
-
             if ($response->status()->status() == "OK") {
                 $pedido->setStatus("CREATED");
             } elseif ($response->status()->status() == "FAILED") {
@@ -162,7 +160,6 @@ class HomeController extends AbstractController
             $error = "ERROR AL GUARDAR EL PEDIDO";
         }
         $expira = new DateTime(date('c', strtotime('+1 days')));
-        dump($expira->format('Y-m-d H:i'));
         array_push($data, [
             'expira' => $expira->format('Y-m-d H:i'),
             'url' => $url,
