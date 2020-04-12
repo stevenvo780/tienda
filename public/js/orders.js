@@ -7,26 +7,25 @@ window.onload = function () {
         method: 'get',
         success: function (response) {
             var data = JSON.parse(response);
-            console.log(data);
-            document.getElementById('orders').innerHTML = ""; 
+            document.getElementById('orders').innerHTML = "";
             data.forEach(orden => {
-                console.log(orden);
-                var status;
-                switch (orden.pedido.status) {
-                    case "CREATED":
-                        status = "En proceso";
-                        break;
-                    case "REJECTED":
-                        status = "Fallo";
-                        break;
-                    case "PAYED":
-                        status = "Pagado";
-                        break;
-    
-                    default:
-                        break;
-                }
-                let ordenHtml = `<div class='col-md-3 col-center'>
+                if (orden.error != null) {
+                    var status;
+                    switch (orden.pedido.status) {
+                        case "CREATED":
+                            status = "En proceso";
+                            break;
+                        case "REJECTED":
+                            status = "Fallo";
+                            break;
+                        case "PAYED":
+                            status = "Pagado";
+                            break;
+
+                        default:
+                            break;
+                    }
+                    let ordenHtml = `<div class='col-md-3 col-center'>
                                 <div
                                     class='card'>
                                     <div class='card-body'>
@@ -43,12 +42,15 @@ window.onload = function () {
                                 <br>
                             </div>`;
 
-                $(ordenHtml).appendTo('#orders');
+                    $(ordenHtml).appendTo('#orders');
 
-                if (orden.pedido.status == "CREATED") {
-                    let boton = `<a href='${orden.pedido.url}' role='button' class='btn btn-success'>Volver a la compra</a>`;
-                    var targeta = "ordenId_" + orden.pedido.id;
-                    $(boton).appendTo('#' + targeta);
+                    if (orden.pedido.status == "CREATED") {
+                        let boton = `<a href='${orden.pedido.url}' role='button' class='btn btn-success'>Volver a la compra</a>`;
+                        var targeta = "ordenId_" + orden.pedido.id;
+                        $(boton).appendTo('#' + targeta);
+                    }
+                } else {
+                    console.log(orden);
                 }
 
             });

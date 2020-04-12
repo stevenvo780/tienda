@@ -31,7 +31,6 @@ window.onload = function () {
         method: 'get',
         success: function (response) {
             var data = JSON.parse(response);
-            console.log(data);
             table = $('#productos').DataTable({
                 "language": {
                     "decimal": "",
@@ -57,7 +56,6 @@ window.onload = function () {
                 "destroy": true,
             });
             data.forEach(orden => {
-                console.log(orden);
                 var status;
                 switch (orden.pedido.status) {
                     case "CREATED":

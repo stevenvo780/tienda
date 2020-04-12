@@ -97,7 +97,7 @@ class LoginFormAutehnticatorAuthenticator extends AbstractFormLoginAuthenticator
         }
 
         
-        return new RedirectResponse($this->urlGenerator->generate('index'));
+        return new RedirectResponse($this->urlGenerator->generate('productos'));
     }
 
     protected function getLoginUrl()

@@ -1,9 +1,5 @@
-index:
-    path: /
-    controller: App\Controller\HomeController::index
-
 productos:
-    path: /productos
+    path: /
     controller: App\Controller\HomeController::productos
 
 pasarela:
@@ -20,3 +16,7 @@ pedidos_index:
     path: /pedidos
     methods: GET
     controller: App\Controller\HomeController::pedidos
+
+pre_order:
+  path: /preorder/{id}
+  controller: App\Controller\HomeController::preOrder

@@ -4,8 +4,6 @@
 {% endblock %}
 
 {% block body %}
-
-
 	<div class="container">
 		<div class="row">
 			<div class="col-xl-12 mx-auto">
@@ -18,10 +16,6 @@
 							<th>Sku</th>
 							<th>Name</th>
 							<th>Category</th>
-							<th>Qty</th>
-							<th>Price</th>
-							<th>Tax</th>
-							<th>Description</th>
 							<th>actions</th>
 						</tr>
 					</thead>
@@ -32,10 +26,6 @@
 								<td>{{ producto.sku }}</td>
 								<td>{{ producto.name }}</td>
 								<td>{{ producto.category }}</td>
-								<td>{{ producto.qty }}</td>
-								<td>{{ producto.price }}</td>
-								<td>{{ producto.tax }}</td>
-								<td>{{ producto.description }}</td>
 								<td>
 									<a class="btn btn-lg btn-info" href="{{ url('producto_show', {'id': producto.id}) }}">VER</a>
 									<a class="btn btn-lg btn-warning" href="{{ url('producto_edit', {'id': producto.id}) }}">EDITAR</a>
@@ -58,7 +48,7 @@
 	{{ parent() }}
 	<script>
 		$(document).ready(function () {
-$('#productos').DataTable();
-});
+			$('#productos').DataTable();
+			});
 	</script>
 {% endblock %}

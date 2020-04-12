@@ -85,6 +85,7 @@ class HomeController extends AbstractController
             ]);
             array_push($itemsId, $producto->getId());
             $precioFinal += $producto->getPrice();
+            $precioFinal += $producto->getTax();
         }
 
         $pedido->setProductos($itemsId);
@@ -111,7 +112,8 @@ class HomeController extends AbstractController
             'expiration' => date('c', strtotime('+1 days')),
             'returnUrl' => 'http://localhost:8000/profile/pedidos',
             'ipAddress' => '127.0.0.1',
-            'userAgent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+            'userAgent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+             (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
         ];
 
         $error = "";
@@ -159,8 +161,10 @@ class HomeController extends AbstractController
         } catch (\Throwable $th) {
             $error = "ERROR AL GUARDAR EL PEDIDO";
         }
-
+        $expira = new DateTime(date('c', strtotime('+1 days')));
+        dump($expira->format('Y-m-d H:i'));
         array_push($data, [
+            'expira' => $expira->format('Y-m-d H:i'),
             'url' => $url,
             'error' => $error,
             'pedido' => $pedido,
@@ -186,10 +190,11 @@ class HomeController extends AbstractController
                 $userLogueado = $this->getUser();
                 $pedidos = $em->getRepository(Pedido::class)->findAll();
                 $orders = $this->statusOrders($pedidos);
-                dump($this->getUser());
             } elseif ($rol[0] == "ROLE_USER") {
                 $userLogueado = $this->getUser();
-                $pedidos = $em->getRepository(Pedido::class)->findBy(['customerEmail' => $userLogueado->getEmail()]);
+                $pedidos = $em->getRepository(Pedido::class)->findBy([
+                    'customerEmail' => $userLogueado->getEmail(),
+                ]);
                 $orders = $this->statusOrders($pedidos);
             }
         }
@@ -201,6 +206,26 @@ class HomeController extends AbstractController
         return new Response($serializer->serialize($orders, 'json'));
     }
 
+    public function preOrder(EntityManagerInterface $em, int $id)
+    {
+        $producto = $em->getRepository(Producto::class)->find($id);
+        $user = $this->getUser();
+        $order = [
+            'producto' => $producto,
+            'user' => [
+                'nombre' => $user->getNombre(),
+                'email' => $user->getEmail(),
+                'movil' => $user->getMobile(),
+            ],
+        ];
+
+        $encoders = [new XmlEncoder(), new JsonEncoder()];
+        $normalizers = [new ObjectNormalizer()];
+        $serializer = new Serializer($normalizers, $encoders);
+
+        return new Response($serializer->serialize($order, 'json'));
+    }
+
     private function statusOrders($pedidos)
     {
         $em = $this->getDoctrine()->getManager();
@@ -209,12 +234,13 @@ class HomeController extends AbstractController
             'tranKey' => '024h1IlD',
             'url' => 'https://test.placetopay.com/redirection/',
             'rest' => [
-                'timeout' => 40,
-                'connect_timeout' => 40,
+                'timeout' => 20,
+                'connect_timeout' => 20,
             ],
         ]);
         $orders = [];
         foreach ($pedidos as $key => $pedido) {
+            $error = "";
             try {
                 $response = $placetopay->query($pedido->getRequestId());
 
@@ -229,28 +255,34 @@ class HomeController extends AbstractController
                             $pedido->setStatus($statusNew);
                         }
                     }
-
                     try {
                         $em->persist($pedido);
                         $em->flush();
                         $productos = $pedido->getProductos();
                         $items = [];
                         foreach ($productos as $key => $productoId) {
-                            $producto = $em->getRepository(Producto::class)->find($productoId);
+                            $producto = $em->getRepository(Producto::class)->
+                                find($productoId);
                             array_push($items, $producto);
 
                         }
-                        array_push($orders, ['pedido' => $pedido, 'items' => $items]);
+
                     } catch (\Throwable $th) {
-                        dump($th);
+                        $error = $th->getMessage();
                     }
 
                 } else {
-                    dump($response->status()->message());
+                    $error = $response->status()->message();
                 }
             } catch (Exception $e) {
-                dump($e->getMessage());
+                $error = $e->getMessage();
             }
+
+            array_push($orders, [
+                'pedido' => $pedido,
+                'items' => $items,
+                'error' => $error,
+            ]);
         }
         return $orders;
     }

@@ -15,12 +15,13 @@
 						{# <img class="card-img-top" src="..." alt="Card image cap"> #}
 						<div class="card-body">
 							<h5 class="card-title">{{ producto.name }}</h5>
-							<p class="card-text">{{ producto.description }}</p>
+							<p class="card-text">Descripcion: {{ producto.description }}</p>
 						</div>
 
 						<div class="card-body">
 							<h5>${{producto.price}}</h5>
 							<p>{{ producto.category }}</p>
+							<p>SKU: {{ producto.sku }}</p>
 							<a href='javascript:;' onclick="pasarela({{ producto.id }});" role="button" class="btn btn-success">Comprar</a>
 						</div>
 					</div>
