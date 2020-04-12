@@ -19,7 +19,7 @@ function pasarela(idProducto) {
                                     <h3>TOTAL: ${priceTotal}</h3>
                                 </div>
                                 <br>
-                                <h3>Informacion de usuario</h3>
+                                <h3>Informacion del usuario</h3>
                                 <div>
                                     <p>NOMBRE: ${data.user.nombre}</p>
                                     <p>CORREO: ${data.user.email}</p>
@@ -59,7 +59,7 @@ function pagar(idProducto) {
                 data.forEach(producto => {
                     var priceTotal = producto.items[0].tax + producto.items[0].price;
                     let ordenCuerpo = ` <div>
-                                            <h3>Informacion producto</h3>
+                                            <h3>Informacion del producto</h3>
                                             <p>${producto.items[0].category}</p>
                                             <p>${producto.items[0].name}</p>
                                             <p>STOCK: ${producto.items[0].sku}</p>
@@ -68,7 +68,7 @@ function pagar(idProducto) {
                                             <h3>TOTAL: ${priceTotal}</h3>
                                         </div>
                                         <br>
-                                        <h3>Informacion de usuario</h3>
+                                        <h3>Informacion del usuario</h3>
                                         <div>
                                             <p>NOMBRE: ${producto.pedido.customerName}</p>
                                             <p>CORREO: ${producto.pedido.customerEmail}</p>
