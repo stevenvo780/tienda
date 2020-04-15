@@ -23,6 +23,7 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('email', EmailType::class, array('attr'  => array('class' => 'form-control')))
             ->add('nombre', TextType::class, array('attr'  => array('class' => 'form-control')))
+            ->add('apellido', TextType::class, array('attr'  => array('class' => 'form-control')))
             ->add('mobile', NumberType::class, array('label' => 'Numero' ,'attr'  => array('class' => 'form-control')))
             ->add('plainPassword', RepeatedType::class, array(
                 'type' => PasswordType::class,

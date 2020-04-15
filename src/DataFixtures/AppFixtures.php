@@ -24,6 +24,7 @@ class AppFixtures extends Fixture
         if (!$userA) {
         $user = new User();
         $user->setNombre('admin');
+        $user->setApellido('admin');
         $user->setMobile('0000');
         $user->setEmail('tienda@tienda.com');
         $user->setRoles(["ROLE_ADMIN"]);

@@ -94,7 +94,7 @@ class HomeController extends AbstractController
             'payment' => [
                 'reference' => $reference,
                 "name" => $userLogueado->getNombre(),
-                "surname" => "Yost",
+                "surname" => $userLogueado->getApellido(),
                 "email" => $userLogueado->getEmail(),
                 'description' => 'Testing payment',
                 "mobile" => $userLogueado->getMobile(),
@@ -105,6 +105,7 @@ class HomeController extends AbstractController
             ],
             "buyer" => [
                 "name" => $userLogueado->getNombre(),
+                "surname" => $userLogueado->getApellido(),
                 "email" => $userLogueado->getEmail(),
                 "mobile" => $userLogueado->getMobile(),
             ],
@@ -125,7 +126,8 @@ class HomeController extends AbstractController
             $hoy = date("Y-m-d H:i:s");
             $hoy = new DateTime($hoy);
 
-            $pedido->setCustomerName($userLogueado->getNombre());
+            $pedido->setCustomerName($userLogueado->getNombre()
+             . " " . $userLogueado->getApellido());
             $pedido->setCustomerEmail($userLogueado->getEmail());
             $pedido->setCustomerMobile($userLogueado->getMobile());
             $pedido->setrequestId($response->requestId());
@@ -210,9 +212,9 @@ class HomeController extends AbstractController
         $order = [
             'producto' => $producto,
             'user' => [
-                'nombre' => $user->getNombre(),
+                'nombre' => $user->getNombre() . " " . $user->getApellido(),
                 'email' => $user->getEmail(),
-                'movil' => $user->getMobile(),
+                'mobile' => $user->getMobile(),
             ],
         ];
 
