@@ -6,7 +6,7 @@ Credenciales de administrador
 - email: tienda@tienda.com
 - password: admin85204561583#
 
-despliegue:
+despliegue para sistemas debian y derivados:
 
  - $ bin/deploy.sh
 

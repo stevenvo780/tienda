@@ -1,16 +1,17 @@
-productos:
-    path: /
-    controller: App\Controller\HomeController::productos
-
-pasarela:
-    path: /pasarela
-    methods: POST
-    controller: App\Controller\HomeController::pasarela
+order:
+    path: /order/{id}
+    methods: GET
+    controller: App\Controller\HomeController::order
 
 orders:
     path: /orders
     methods: GET
     controller: App\Controller\HomeController::orders
+
+pasarela:
+    path: /pasarela
+    methods: POST
+    controller: App\Controller\HomeController::pasarela
 
 pedidos_index:
     path: /pedidos
@@ -18,5 +19,14 @@ pedidos_index:
     controller: App\Controller\HomeController::pedidos
 
 pre_order:
-  path: /preorder/{id}
-  controller: App\Controller\HomeController::preOrder
+    path: /preorder
+    controller: App\Controller\HomeController::preOrder
+
+productos:
+    path: /
+    controller: App\Controller\HomeController::productos
+
+producto_list:
+    path: /producto/list/{id}
+    methods: GET
+    controller: App\Controller\ProductoController::list

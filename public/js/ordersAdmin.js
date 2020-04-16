@@ -71,15 +71,12 @@ window.onload = function () {
                     default:
                         break;
                 }
-
+                var boton = ` <a href='javascript:;' onclick="informacion(${orden.pedido.id});" role='button' class='btn btn-success'>Mas informacion</a>`;
                 table.row.add([
-                    orden.items[0].category,
-                    orden.items[0].name,
-                    orden.items[0].price,
-                    orden.items[0].sku,
-                    orden.items[0].category,
-                    orden.pedido.customerEmail,
+                    orden.pedido.requestId,
                     orden.pedido.customerName,
+                    orden.pedido.customerEmail,
+                    boton
                 ]);
 
             });
@@ -91,3 +88,68 @@ window.onload = function () {
     });
 
 };
+
+function informacion(id) {
+    var uri = "http://localhost:8000/profile/order/" + id;
+
+    $.ajax({
+        url: uri,
+        method: 'get',
+        success: function (response) {
+            var data = JSON.parse(response);
+
+            var status;
+            switch (data.status) {
+                case "CREATED":
+                    status = "En proceso";
+                    break;
+                case "REJECTED":
+                    status = "Fallo";
+                    break;
+                case "PAYED":
+                    status = "Pagado";
+                    break;
+
+                default:
+                    break;
+            }
+            let ordenHtml = `
+                            <div class='card'>
+                                    <div class='card-body'>
+                                    <h4 class='card-title'>${status}</h4>
+                                    </div>
+
+                                    <div class='card-body'id='ordenId_${data.id}'>
+                                        <h5 class='card-title'>Numero de orden: ${data.requestId}</h5>
+                                        <div style="height: 300px; overflow: auto;" id="productosPasarela" ></div>
+                                        <h2 id="totalInformacion"></h2>
+                                    </div>
+                                <br>
+                            </div>`;
+            document.getElementById('modalBody').innerHTML = ordenHtml;
+            var total = 0;
+            data.productos.forEach(producto => {
+                var priceTotal = producto.tax + producto.price;
+                total += priceTotal * producto.qty;
+                var productoPrint = `<h4>Cantidad: ${producto.qty}</h4>
+                                                        <p>${producto.category}</p>
+                                                        <p>${producto.name}</p>
+                                                        <p>SKU: ${producto.sku}</p>
+                                                        <p>PRECIO: ${producto.price} $</p>
+                                                        <p>IVA: ${producto.tax} $</p>
+                                                        <h5>TOTAL PRODUCTO: ${priceTotal} $</h5>
+                                                        <hr>`;
+                $(productoPrint).appendTo('#productosPasarela');
+
+                $('#informacion').modal('show');
+
+            });
+            totalPrint = `TOTAL: ${total} $`;
+            document.getElementById('totalInformacion').innerHTML = totalPrint;
+
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}

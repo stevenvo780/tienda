@@ -19,20 +19,20 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager)
     {
         $userA = $manager->getRepository(User::class)->
-                    findOneByEmail('tienda@tienda.com');
+            findOneByEmail('tienda@tienda.com');
 
         if (!$userA) {
-        $user = new User();
-        $user->setNombre('admin');
-        $user->setApellido('admin');
-        $user->setMobile('0000');
-        $user->setEmail('tienda@tienda.com');
-        $user->setRoles(["ROLE_ADMIN"]);
-        $password = $this->encoder->encodePassword($user, 'admin85204561583#');
-        $user->setPassword($password);
+            $user = new User();
+            $user->setNombre('admin');
+            $user->setApellido('admin');
+            $user->setMobile('0000');
+            $user->setEmail('tienda@tienda.com');
+            $user->setRoles(["ROLE_ADMIN"]);
+            $password = $this->encoder->encodePassword($user, 'admin85204561583#');
+            $user->setPassword($password);
 
-        $manager->persist($user);
-        $manager->flush();
+            $manager->persist($user);
+            $manager->flush();
 
         }
     }

@@ -5,9 +5,14 @@ namespace App\Controller;
 use App\Entity\Producto;
 use App\Form\ProductoType;
 use App\Repository\ProductoRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 class ProductoController extends AbstractController
 {
@@ -37,6 +42,25 @@ class ProductoController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    public function list(Request $request, EntityManagerInterface $em , int $id): Response {
+        
+        $data;
+        $producto = $em->getRepository(Producto::class)->find($id);
+
+        if ($producto) {
+            $data = $producto;
+        } else {
+            $data = $em->getRepository(Producto::class)->findAll();
+        }
+
+        $encoders = [new XmlEncoder(), new JsonEncoder()];
+        $normalizers = [new ObjectNormalizer()];
+        $serializer = new Serializer($normalizers, $encoders);
+
+        return new Response($serializer->serialize($data, 'json'));
+    }
+
 
     public function show(Producto $producto): Response
     {
