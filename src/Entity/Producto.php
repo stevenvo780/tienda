@@ -31,10 +31,6 @@ class Producto
      */
     private $category;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $qty;
 
     /**
      * @ORM\Column(type="integer")
@@ -88,18 +84,6 @@ class Producto
     public function setCategory(string $category): self
     {
         $this->category = $category;
-
-        return $this;
-    }
-
-    public function getQty(): ?string
-    {
-        return $this->qty;
-    }
-
-    public function setQty(string $qty): self
-    {
-        $this->qty = $qty;
 
         return $this;
     }

@@ -17,7 +17,6 @@ class ProductoType extends AbstractType
             ->add('sku', TextType::class, array('label' => 'SKU', 'attr'  => array('class' => 'form-control')))
             ->add('name', TextType::class, array('label' => 'Nombre' , 'attr'  => array('class' => 'form-control')))
             ->add('category', TextType::class,  array('label' => 'Categoria' , 'attr'  => array('class' => 'form-control')))
-            ->add('qty', TextType::class, array('label' => 'Numero de articulo' , 'attr'  => array('class' => 'form-control')))
             ->add('price', NumberType::class, array('label' => 'Precio' , 'attr'  => array('class' => 'form-control')))
             ->add('tax', TextType::class, array('label' => 'IVA' , 'attr'  => array('class' => 'form-control')))
             ->add('description', TextType::class, array('label' => 'Descipcion', 'attr'  => array('class' => 'form-control')))

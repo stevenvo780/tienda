@@ -5,16 +5,34 @@
 
 {% block body %}
 
-	<div class="container">
-		<br>
-		<div class="row" id="orders">
-			<img src="/images/load.gif" alt="load" style="margin-left: auto; margin-right: auto;">
+<div class="container">
+	<br>
+	<div class="row" id="orders">
+		<img src="/images/load.gif" alt="load" style="margin-left: auto; margin-right:
+			auto;">
+	</div>
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" id="informacion">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Informacion de orden de pago</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" id="modalBody">
+				<p>Modal body text goes here.</p>
+			</div>
+			<div class="modal-footer" id="modalButons">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
 		</div>
 	</div>
-
+</div>
 {% endblock %}
 
 {% block javascripts %}
-	{{ parent() }}
-	<script src="/js/orders.js"></script>
+{{ parent() }}
+<script src="/js/orders.js"></script>
 {% endblock %}

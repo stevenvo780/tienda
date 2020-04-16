@@ -33,30 +33,49 @@ class HomeController extends AbstractController
         return $this->redirectToRoute('app_logout');
     }
 
-    public function productos(EntityManagerInterface $em)
+    public function order(EntityManagerInterface $em, int $id)
     {
-        $productos = $em->getRepository(Producto::class)->findAll();
+        $pedido = $em->getRepository(Pedido::class)->find($id);
 
-        return $this->render('home/productos.html.twig', [
-            'productos' => $productos,
-        ]);
+        $encoders = [new XmlEncoder(), new JsonEncoder()];
+        $normalizers = [new ObjectNormalizer()];
+        $serializer = new Serializer($normalizers, $encoders);
+
+        return new Response($serializer->serialize($pedido, 'json'));
     }
 
-    public function pedidos()
+    public function orders(EntityManagerInterface $em)
     {
-        return $this->render('home/orders.html.twig');
-    }
+        $orders;
 
-    public function pedidosAdmin()
-    {
-        return $this->render('admin/orders.html.twig');
+        if ($this->getUser()) {
+            $rol = $this->getUser()->getRoles();
+            if ($rol[0] == "ROLE_ADMIN") {
+                $userLogueado = $this->getUser();
+                $pedidos = $em->getRepository(Pedido::class)->findAll();
+                $orders = $this->statusOrders($pedidos);
+            } elseif ($rol[0] == "ROLE_USER") {
+                $userLogueado = $this->getUser();
+                $pedidos = $em->getRepository(Pedido::class)->findBy([
+                    'customerEmail' => $userLogueado->getEmail(),
+                ]);
+                $orders = $this->statusOrders($pedidos);
+            }
+        }
+
+        $encoders = [new XmlEncoder(), new JsonEncoder()];
+        $normalizers = [new ObjectNormalizer()];
+        $serializer = new Serializer($normalizers, $encoders);
+
+        return new Response($serializer->serialize($orders, 'json'));
     }
 
     public function pasarela(EntityManagerInterface $em, Request $request)
     {
         $pedido = new Pedido();
-        $data = [];
+
         $json = $request->request->all();
+
         $userLogueado = $this->getUser();
         $placetopay = new PlacetoPay([
             'login' => '6dd490faf9cb87a9862245da41170ff2',
@@ -71,24 +90,34 @@ class HomeController extends AbstractController
         $reference = 'REF_' . time();
 
         $items = [];
+        $productosSave = [];
         $itemsId = [];
         $precioFinal = 0;
-        foreach ($json['idProducto'] as $idProducto) {
-            $producto = $em->getRepository(Producto::class)->find($idProducto);
+        foreach ($json['productos'] as $key => $productosId) {
+            $producto = $em->getRepository(Producto::class)->
+                find($productosId['itemId']);
             array_push($items, [
                 "sku" => $producto->getSku(),
                 "name" => $producto->getName(),
                 "category" => $producto->getCategory(),
-                "qty" => $producto->getQty(),
+                "qty" => $productosId['count'],
+                "price" => $producto->getPrice(),
+                "tax" => $producto->getTax(),
+            ]);
+            array_push($productosSave, [
+                "id" => $producto->getId(),
+                "sku" => $producto->getSku(),
+                "name" => $producto->getName(),
+                "category" => $producto->getCategory(),
+                "qty" => $productosId['count'],
                 "price" => $producto->getPrice(),
                 "tax" => $producto->getTax(),
             ]);
             array_push($itemsId, $producto->getId());
-            $precioFinal += $producto->getPrice();
-            $precioFinal += $producto->getTax();
+            $precioFinal += ($producto->getPrice() + $producto->getTax()) * $productosId['count'];
         }
 
-        $pedido->setProductos($itemsId);
+        $pedido->setProductos($productosSave);
 
         $request = [
             'payment' => [
@@ -127,7 +156,7 @@ class HomeController extends AbstractController
             $hoy = new DateTime($hoy);
 
             $pedido->setCustomerName($userLogueado->getNombre()
-             . " " . $userLogueado->getApellido());
+                . " " . $userLogueado->getApellido());
             $pedido->setCustomerEmail($userLogueado->getEmail());
             $pedido->setCustomerMobile($userLogueado->getMobile());
             $pedido->setrequestId($response->requestId());
@@ -162,13 +191,11 @@ class HomeController extends AbstractController
             $error = "ERROR AL GUARDAR EL PEDIDO";
         }
         $expira = new DateTime(date('c', strtotime('+1 days')));
-        array_push($data, [
+        $data = [
             'expira' => $expira->format('Y-m-d H:i'),
             'url' => $url,
             'error' => $error,
-            'pedido' => $pedido,
-            'items' => $items,
-        ]);
+        ];
 
         $encoders = [new XmlEncoder(), new JsonEncoder()];
         $normalizers = [new ObjectNormalizer()];
@@ -179,38 +206,33 @@ class HomeController extends AbstractController
         return new Response(0);
     }
 
-    public function orders(EntityManagerInterface $em)
+    public function pedidos()
     {
-        $orders;
-
-        if ($this->getUser()) {
-            $rol = $this->getUser()->getRoles();
-            if ($rol[0] == "ROLE_ADMIN") {
-                $userLogueado = $this->getUser();
-                $pedidos = $em->getRepository(Pedido::class)->findAll();
-                $orders = $this->statusOrders($pedidos);
-            } elseif ($rol[0] == "ROLE_USER") {
-                $userLogueado = $this->getUser();
-                $pedidos = $em->getRepository(Pedido::class)->findBy([
-                    'customerEmail' => $userLogueado->getEmail(),
-                ]);
-                $orders = $this->statusOrders($pedidos);
-            }
-        }
-
-        $encoders = [new XmlEncoder(), new JsonEncoder()];
-        $normalizers = [new ObjectNormalizer()];
-        $serializer = new Serializer($normalizers, $encoders);
-
-        return new Response($serializer->serialize($orders, 'json'));
+        return $this->render('home/orders.html.twig');
     }
 
-    public function preOrder(EntityManagerInterface $em, int $id)
+    public function pedidosAdmin()
     {
-        $producto = $em->getRepository(Producto::class)->find($id);
+        return $this->render('admin/orders.html.twig');
+    }
+
+    public function preOrder(EntityManagerInterface $em, Request $request)
+    {
+        $json = $request->request->all();
+
+        $productos = [];
+        $total = 0;
+        foreach ($json['productos'] as $key => $productosId) {
+            $producto = $em->getRepository(Producto::class)->
+                find($productosId['itemId']);
+            array_push($productos, [
+                'cantidad' => $productosId['count'],
+                'item' => $producto,
+            ]);
+        }
         $user = $this->getUser();
         $order = [
-            'producto' => $producto,
+            'productos' => $productos,
             'user' => [
                 'nombre' => $user->getNombre() . " " . $user->getApellido(),
                 'email' => $user->getEmail(),
@@ -225,6 +247,14 @@ class HomeController extends AbstractController
         return new Response($serializer->serialize($order, 'json'));
     }
 
+    public function productos(EntityManagerInterface $em)
+    {
+        $productos = $em->getRepository(Producto::class)->findAll();
+        return $this->render('home/productos.html.twig', [
+            'productos' => $productos,
+        ]);
+    }
+
     private function statusOrders($pedidos)
     {
         $em = $this->getDoctrine()->getManager();
@@ -237,6 +267,7 @@ class HomeController extends AbstractController
                 'connect_timeout' => 20,
             ],
         ]);
+
         $orders = [];
         foreach ($pedidos as $key => $pedido) {
             $error = "";
@@ -261,7 +292,7 @@ class HomeController extends AbstractController
                         $items = [];
                         foreach ($productos as $key => $productoId) {
                             $producto = $em->getRepository(Producto::class)->
-                                find($productoId);
+                                find($productoId['id']);
                             array_push($items, $producto);
 
                         }
