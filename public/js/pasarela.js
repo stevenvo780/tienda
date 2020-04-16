@@ -69,7 +69,7 @@ function cargarCarrito() {
 function pasarela() {
 
     var uri = "http://localhost:8000/profile/preorder";
-
+    
     const productos = [];
     items.forEach(item => {
         productos.push({
@@ -77,6 +77,9 @@ function pasarela() {
             'itemId': item.item.id,
         });
     });
+    if (productos.length < 1) {
+        return null;
+    }
     var data = {
         "productos": productos,
     };
